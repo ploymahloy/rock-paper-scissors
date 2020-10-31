@@ -1,0 +1,8 @@
+wall {
+    width: 900px;
+    height: 40px;
+    background-color: black;
+    position: relative;
+    margin-top: 100px;
+    background-image: url("img/hedges.jpeg");
+}
