@@ -7,9 +7,9 @@ import Scroller from "./components/Scroller/Scroller";
 export default function App() {
   return (
     <div className="App">
-      <Game />
+      <Game>
         <Scroller />
-      <Game />
+      </Game>
     </div>
   );
 }
