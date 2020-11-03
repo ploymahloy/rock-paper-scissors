@@ -8,7 +8,6 @@ export default function Hole() {
     
     return (
         <div className="hole" style={style}>
-            Hole
         </div>
     );
 }
