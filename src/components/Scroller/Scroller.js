@@ -10,7 +10,6 @@ export default function Game() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setArray([...array, <Wall />]);
-            console.log(array);
         }, 1000);
         return () => {
             clearTimeout(timer);
