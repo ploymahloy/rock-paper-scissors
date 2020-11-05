@@ -1,7 +1,7 @@
 import React from "react";
 import "./Hole.css";
 
-export default function Hole(props) {
+export default function Hole() {
     const style = {
         // transform: `translateX(${Math.random() * 800}px)`
         transform: `translateX(100%)`,

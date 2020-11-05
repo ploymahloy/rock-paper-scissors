@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 import Wall from "../Wall/Wall.js";
 
@@ -6,9 +6,8 @@ import useViewportDimensions from '../../hooks/useViewportDimensions';
 
 import "./Game.css";
 
-export default function Game(props) {
-    
-    const [ walls, setWalls ] = useState([]);
+export default function Game() {
+    const [ walls, setWalls ] = useState<ReactNode[]>([]);
     const [ viewportWidth, setViewportWidth ]   = useState(0);
     const [ viewportHeight, setViewportHeight ] = useState(0);
     const [ playerX, setPlayerX ] = useState(0);
@@ -45,26 +44,26 @@ export default function Game(props) {
 
     // add document listeners
     useEffect(() => {
-        function handleKeyup (event) {
-            if (event.keyCode === 37) { // left
+        function handleKeyup (event: KeyboardEvent) {
+            if (event.code === 'ArrowLeft') {
                 if (playerX > viewportWidthUnit) {
                     setPlayerX(playerX - viewportWidthUnit);
                 } else {
                     setPlayerX(0);
                 }
-            } else if (event.keyCode === 39) { // right
+            } else if (event.code === 'ArrowRight') {
                 if (playerX < gameMaxWidth - playerWidth) {
                     setPlayerX(playerX + viewportWidthUnit);
                 } else {
                     setPlayerX(gameMaxWidth - playerWidth);
                 }
-            } else if (event.keyCode === 38) { // up
+            } else if (event.code === 'ArrowUp') {
                 if (playerY > viewportHeightUnit) {
                     setPlayerY(playerY - viewportHeightUnit);
                 } else {
                     setPlayerY(0);
                 }
-            } else if (event.keyCode === 40) { // down
+            } else if (event.code === 'ArrowDown') {
                 if (playerY < gameMaxHeight - playerHeight) {
                     setPlayerY(playerY + viewportHeightUnit);
                 } else {
