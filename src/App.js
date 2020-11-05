@@ -1,7 +1,8 @@
 import React from "react";
-import './App.css';
+
 import Game from "./components/Game/Game";
 
+import './App.css';
 
 export default function App() {
   return (

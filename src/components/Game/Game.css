@@ -1,8 +1,16 @@
 .game {
-    width: 900px;
-    height: 725px;
+    overflow: hidden;
+
     border: 3px solid black;
-    margin: auto;
-    /* overflow: hidden; */
-    background: #526e23;
+    background-color: #526E23;
+
+    position: relative;
+}
+
+.player {
+    position: absolute;
+
+    background-image: url("../../img/josh.png");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
