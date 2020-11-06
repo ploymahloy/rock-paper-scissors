@@ -1,31 +1,71 @@
 import express, { Request, Response } from 'express';
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-// export interface ICat extends Document {
-//   name: string,
-// }
+const API_PORT = 4000;
 
-const app = express();
-const PORT = 4000;
+const DB_HOST = 'localhost';
+const DB_PORT = 27017;
+const DB_NAME = 'swamprun';
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
-});
+// ========== MONGO CONFIG ==========
 
-app.get('/connect', (req: Request, res: Response) => {
-  const CatSchema: Schema = new Schema({
-    name: String,
+  mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   });
 
-  mongoose.connect('mongodb://localhost:27017/test', {useNewUrlParser: true, useUnifiedTopology: true});
+  const UserSchema: Schema = new Schema({
+    username: String,
+    topScore: Number,
+  });
 
-  // const Cat = mongoose.model<ICat>('Cat', CatSchema);
-  const Cat = mongoose.model('Cat', CatSchema);
+  const User = mongoose.model('User', UserSchema);
 
-  const kitty = new Cat({ name: 'Zildjian' });
-  kitty.save().then(() => console.log('meow'));
+  // ========== EXPRESS CONFIG ==========
+
+const app = express();
+
+app.use(express.json());
+
+// create new user
+app.post('/users', async (req: Request, res: Response) => {
+  const username = 'patrick';
+  const user = new User({
+    username: username,
+    topScore: 0,
+  });
+
+  const userData = await user.save();
+
+  res.json({
+    message: 'User successfully created.',
+    data: userData,
+  });
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening at http://localhost:${PORT}`)
+// get user information
+app.get('/users/:username', async (req: Request, res: Response) => {
+  const username = req.params['username'];
+  const userData = await User.findOne({ username }).exec();
+
+  res.json({
+    message: `${username}`,
+    data: userData,
+  });
+});
+
+// update top score for user
+app.patch('/users/:username', async (req: Request, res: Response) => {
+  const username = req.params['username'];
+  const newScore = req.body['topScore'];
+
+  await User.findOneAndUpdate({ username }, { topScore: newScore }).exec();
+
+  res.json({
+    message: `${username} ${newScore}`,
+  });
+});
+
+app.listen(API_PORT, () => {
+  console.log(`Example app listening at http://localhost:${API_PORT}`)
 });
