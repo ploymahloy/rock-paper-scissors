@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose, { Schema } from 'mongoose';
+import cors from 'cors';
 
 const API_PORT = 4000;
 
@@ -26,10 +27,16 @@ const DB_NAME = 'swamprun';
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 // create new user
 app.post('/users', async (req: Request, res: Response) => {
-  const username = 'patrick';
+  // what happens if the username field is missing
+  // what happens if someone puts in a username that is all emojis / non-supported characters
+  // what happens if the username is already taken
+  // what hpapens if the `.save()` command fails?
+
+  const username = req.body['username'];
   const user = new User({
     username: username,
     topScore: 0,
@@ -45,6 +52,9 @@ app.post('/users', async (req: Request, res: Response) => {
 
 // get user information
 app.get('/users/:username', async (req: Request, res: Response) => {
+  // what happens if the username is made up of invalid characters
+  // what hpapens if the username is not found in the databse
+
   const username = req.params['username'];
   const userData = await User.findOne({ username }).exec();
 
@@ -56,6 +66,10 @@ app.get('/users/:username', async (req: Request, res: Response) => {
 
 // update top score for user
 app.patch('/users/:username', async (req: Request, res: Response) => {
+  // what happens if the username is not found hte DB
+  // what happens if a invalid username is passed in
+  // what happens ifthe new score is lower than the current score
+
   const username = req.params['username'];
   const newScore = req.body['topScore'];
 
