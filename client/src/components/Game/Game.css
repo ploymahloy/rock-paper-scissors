@@ -1,0 +1,20 @@
+.Game {
+  text-align: center;
+}
+
+.columns {
+  display: flex;
+  justify-content: center;
+}
+
+.player-one,
+.player-two {
+}
+
+.player-one {
+
+}
+
+.player-two {
+
+}

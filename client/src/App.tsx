@@ -1,81 +1,104 @@
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
 
-import Player from './player';
+import {
+  BrowserRouter as Router,
+  Link,
+  NavLink,
+  Route,
+  Switch,
+} from 'react-router-dom';
 
-import './index.css';
+import Game from './components/Game';
+import LoginForm from './components/LoginForm';
+
+import './App.css';
 
 export default function App () {
-  const choices = ['rock', 'paper', 'scissors'];
+  const [ isLoggedIn, setIsLoggedIn ] = useState(false);
+  const [ username, setUsername ] = useState('');
+  const [ topScore, setTopScore ] = useState(0);
 
-  const [ playerOne, setPlayerOne ] = useState('');
-  const [ playerTwo, setPlayerTwo ] = useState('');
-  const [ winner, setWinner ] = useState('');
-
-  function selectWinner () {
-    if (playerOne === playerTwo) {
-      return "Oops it's a Tie!";
-    } else if (
-      (playerOne === 'rock'     && playerTwo === 'scissors') ||
-      (playerOne === 'scissors' && playerTwo === 'paper')    ||
-      (playerOne === 'paper'    && playerTwo === 'rock')
-    ) {
-      return 'Player One Wins!';
-    } else {
-      return 'Player Two Wins!';
-    }
-  };
-
-  function startGame () {
-    let counter = 0;
-
-    let gameInterval = setInterval(() => {
-      counter++;
-      setPlayerTwo(choices[Math.floor(Math.random() * choices.length)]);
-
-      if (counter > 5) {
-        clearInterval(gameInterval);
-        setWinner(selectWinner());
+  async function incrementScore () {
+    const response = await fetch(`http://localhost:4000/users/${username}`,
+      {
+        method: 'PATCH',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization" : `Bearer ${localStorage.getItem('token')}`
+        }
       }
-    }, 100);
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      setTopScore(data.data.topScore);
+    }
   }
 
-  function selectWeapon (weapon: string) {
-    setPlayerOne(weapon);
-  };
+  function renderHome () {
+    if (isLoggedIn) {
+      return (
+        <Game
+          incrementScore={incrementScore}
+        />
+      );
+    } else {
+      return (
+        <h2
+          style={{
+            textAlign: 'center',
+          }}
+        >
+          If you would like to play, you must <Link to="/login">login</Link>.
+          If you don't yet have an account, you can <Link to="/register">register</Link>.
+        </h2>
+      );
+    }
+  }
+
+  function logout () {
+    setIsLoggedIn(false);
+    setUsername('');
+  }
 
   return (
-    <>
-      <h1 style={{ textAlign: 'center' }}>Rock Paper Scissors</h1>
+    <Router>
+      <div>
+        <header>
+          <h1 className="site-title" >
+            Rock Paper Scissors
+          </h1>
+          <nav>
+            {isLoggedIn && <span className="nav-link">{username} ({topScore})</span>}
+            <span className="nav-link"><NavLink exact to="/">Play</NavLink></span>
+            {!isLoggedIn && <span className="nav-link"><NavLink exact to="/login">Login</NavLink></span>}
+            {!isLoggedIn && <span className="nav-link"><NavLink exact to="/register">Register</NavLink></span>}
+            {isLoggedIn && <span className="nav-link"><a href="#" onClick={logout}>Logout</a></span>}
+          </nav>
+        </header>
 
-      <div>
-        <Player weapon={playerOne} />
-        <Player weapon={playerTwo} />
+        <Switch>
+          <Route path="/register">
+            <LoginForm
+              setIsLoggedIn={setIsLoggedIn}
+              setUsername={setUsername}
+              setTopScore={setTopScore}
+              register
+            />
+          </Route>
+          <Route path="/login">
+            <LoginForm
+              setIsLoggedIn={setIsLoggedIn}
+              setTopScore={setTopScore}
+              setUsername={setUsername}
+            />
+          </Route>
+          <Route path="/">
+            {renderHome}
+          </Route>
+        </Switch>
       </div>
-      <div>
-        <button
-          className='weaponBtn'
-          onClick={() => selectWeapon('rock')}
-        >
-          rock
-        </button>
-        <button
-          className='weaponBtn'
-          onClick={() => selectWeapon('paper')}
-        >
-          paper
-        </button>
-        <button
-          className='weaponBtn'
-          onClick={() => selectWeapon('scissors')}
-        >
-          scissor
-        </button>
-      </div>
-      <div className='winner'>{winner ? selectWinner() : null}</div>
-      <button type='button' onClick={startGame}>
-        Start!
-      </button>
-    </>
+    </Router>
   );
 }

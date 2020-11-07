@@ -1,85 +1,87 @@
-import express, { Request, Response } from 'express';
-import mongoose, { Schema } from 'mongoose';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import passport from 'passport';
+import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt';
+import { Strategy as LocalStrategy } from 'passport-local';
 
-const API_PORT = 4000;
+import User from './models/User';
 
-const DB_HOST = 'localhost';
-const DB_PORT = 27017;
-const DB_NAME = 'swamprun';
+import authRoutes from './routes/auth';
+import userRoutes from './routes/users';
 
-// ========== MONGO CONFIG ==========
+dotenv.config();
+const { API_PORT, DB_HOST, DB_PORT, DB_NAME, JWT_KEY } = process.env;
 
-  mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+// ========== MONGO CONFIG ========== //
 
-  const UserSchema: Schema = new Schema({
-    username: String,
-    topScore: Number,
-  });
+mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => {
+    console.log('Successfully connected to database.');
+  })
+  .catch((error) => {
+    if (error) throw error;
+  })
+;
 
-  const User = mongoose.model('User', UserSchema);
+mongoose.connection.on('error', (error) => {
+  if (error) {
+    throw error;
+  }
+});
 
-  // ========== EXPRESS CONFIG ==========
+// ========== EXPRESS CONFIG ========== //
 
 const app = express();
 
+// --- MIDDLWARE --- //
+
+// parse application/x-www-form-urlencoded
+app.use(express.urlencoded({extended: false}));
+
+// parse application/json
 app.use(express.json());
+
 app.use(cors());
 
-// create new user
-app.post('/users', async (req: Request, res: Response) => {
-  // what happens if the username field is missing
-  // what happens if someone puts in a username that is all emojis / non-supported characters
-  // what happens if the username is already taken
-  // what hpapens if the `.save()` command fails?
+// init and configure passport
+app.use(passport.initialize());
+app.use(passport.session());
 
-  const username = req.body['username'];
-  const user = new User({
-    username: username,
-    topScore: 0,
-  });
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-  const userData = await user.save();
+passport.use(new JWTStrategy({
+    jwtFromRequest : ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey    : JWT_KEY,
+  }, function (jwtPayload, done) {
+    User.findOne({ username: jwtPayload.username})
+      .then((user) => {
+        return done(null, user);
+      })
+      .catch((error) => {
+        if (error) {
+          return done(error);
+        }
+      })
+    ;
+  }
+));
 
-  res.json({
-    message: 'User successfully created.',
-    data: userData,
-  });
-});
+// --- ROUTES --- //
 
-// get user information
-app.get('/users/:username', async (req: Request, res: Response) => {
-  // what happens if the username is made up of invalid characters
-  // what hpapens if the username is not found in the databse
+app.use('/', authRoutes);
+app.use('/users/', userRoutes);
 
-  const username = req.params['username'];
-  const userData = await User.findOne({ username }).exec();
+// TODO: default route
 
-  res.json({
-    message: `${username}`,
-    data: userData,
-  });
-});
+// --- LISTEN --- //
 
-// update top score for user
-app.patch('/users/:username', async (req: Request, res: Response) => {
-  // what happens if the username is not found hte DB
-  // what happens if a invalid username is passed in
-  // what happens ifthe new score is lower than the current score
-
-  const username = req.params['username'];
-  const newScore = req.body['topScore'];
-
-  await User.findOneAndUpdate({ username }, { topScore: newScore }).exec();
-
-  res.json({
-    message: `${username} ${newScore}`,
-  });
-});
-
-app.listen(API_PORT, () => {
+app.listen(parseInt(API_PORT, 10), () => {
   console.log(`Example app listening at http://localhost:${API_PORT}`)
 });

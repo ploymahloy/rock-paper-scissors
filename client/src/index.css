@@ -1,4 +1,38 @@
+@import '~antd/dist/antd.css';
+
 body {
   margin: 0;
   padding: 0;
+}
+
+h1 {
+  font-size: 45px;
+  font-family: monospace;
+  color: #452CD6;
+  text-shadow: 2px 2px #45e9ff;
+}
+
+button {
+  padding: 5px 20px;
+  margin: 15px;
+  font-size: 20px;
+
+  border-radius: 15px;
+  border: 3px solid black;
+  font-weight: bold;
+
+  background-color: rgb(120, 230, 252);
+
+  color: black;
+}
+
+button:focus {
+  outline-style: none;
+}
+
+button:hover {
+  background-color: rgb(235, 76, 208);
+  color: white;
+
+  cursor: pointer;
 }
