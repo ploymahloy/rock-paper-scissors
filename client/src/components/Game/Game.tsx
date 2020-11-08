@@ -17,28 +17,30 @@ export default function Game (props: GameProps) {
   const [ computerSelection, setComputerSelection ] = useState('');
   const [ winner, setWinner ] = useState('');
 
-  function determineWinner () {
-    if (userSelection === computerSelection) {
+  function determineWinner (user: string, computer: string) {
+    if (user === computer) {
       return 'Draw!';
     } else if (
-      (userSelection === 'rock'     && computerSelection === 'scissors') ||
-      (userSelection === 'scissors' && computerSelection === 'paper')    ||
-      (userSelection === 'paper'    && computerSelection === 'rock')
+      (user === 'rock'     && computer === 'scissors') ||
+      (user === 'scissors' && computer === 'paper')    ||
+      (user === 'paper'    && computer === 'rock')
     ) {
-      incrementScore();
       return 'Player One Wins!';
     } else {
       return 'Player Two Wins!';
-    }
+    } 
   };
 
-  function computerPick () {
-    setComputerSelection(choices[Math.floor(Math.random() * choices.length)]);
-  }
-
   function runGame () {
-    computerPick();
-    setWinner(determineWinner());
+    const selection = choices[Math.floor(Math.random() * choices.length)];
+    setComputerSelection(selection);
+
+    const determinedWinner = determineWinner(userSelection, selection);
+    setWinner(determinedWinner);
+
+    if (winner === 'Player One Wins!') {
+      incrementScore();
+    }
   }
 
   function selectWeapon (weapon: string) {
