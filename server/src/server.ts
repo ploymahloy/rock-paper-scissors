@@ -61,10 +61,10 @@ passport.use(new JWTStrategy({
     secretOrKey    : JWT_KEY,
   }, function (jwtPayload, done) {
     User.findOne({ username: jwtPayload.username})
-      .then((user) => {
+      .then((user: any) => {
         return done(null, user);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         if (error) {
           return done(error);
         }

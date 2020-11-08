@@ -51,7 +51,7 @@ function registerUser (req: Request, res: Response) {
         username : req.body.username,
       }),
       req.body.password,
-      (error, user) => {
+      (error: any, user: any) => {
         if (error) {
           res.status(500).json({
             success: false,
