@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import User from '../models/User';
+import User from '../models/user';
 
 // TODO: only return data if current user is the user requested
 async function getUserInfo (req: Request, res: Response) {

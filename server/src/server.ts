@@ -6,7 +6,7 @@ import passport from 'passport';
 import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
 
-import User from './models/User';
+import User from './models/user';
 
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
