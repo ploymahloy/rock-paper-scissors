@@ -14,8 +14,8 @@
     "passport-local-mongoose": "^6.0.1"
   },
   "scripts": {
-    "build": "tsc --build",
-    "start": "ts-node src/server.ts"
+    "build": "npx tsc --build",
+    "start": "npx ts-node src/server.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.8",
